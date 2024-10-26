@@ -1,8 +1,10 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'package:ayurveda/login.dart';
-import 'package:flutter/material.dart';
 import 'dart:ui';
+
+import 'package:ayurveda/data/controllers/global_controller.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -15,11 +17,16 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 3), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const Login()),
-      );
+    Future.delayed(const Duration(seconds: 3), () async {
+      final GlobalController controller = Get.put(GlobalController());
+
+      var res = await controller.checkUserAuthenticated();
+
+      if (res) {
+        Get.toNamed("/patient-list");
+      } else {
+        Get.toNamed("/login");
+      }
     });
   }
 
@@ -42,11 +49,11 @@ class _SplashScreenState extends State<SplashScreen> {
               color: Colors.black.withOpacity(0),
             ),
           ),
-           Center(
+          Center(
             child: Image.asset(
-              'assets/ayurveda_icon.png',  
-              width: 150,  
-              height: 150,  
+              'assets/ayurveda_icon.png',
+              width: 150,
+              height: 150,
             ),
           ),
         ],

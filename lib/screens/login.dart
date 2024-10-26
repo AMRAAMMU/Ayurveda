@@ -1,8 +1,13 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace, unused_import, use_build_context_synchronously
 
-import 'package:ayurveda/patient_list.dart';
-import 'package:flutter/material.dart';
+import 'dart:developer';
 import 'dart:ui';
+
+import 'package:ayurveda/screens/patient_list.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import '../data/controllers/login_controller.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -18,6 +23,8 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
+    final LoginController controller = Get.put(LoginController());
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -41,15 +48,15 @@ class _LoginState extends State<Login> {
                     ),
                   ),
                 ),
-                 Positioned(
+                Positioned(
                   left: 0,
                   right: 0,
-                  top: 80,  
+                  top: 80,
                   child: Center(
                     child: Image.asset(
-                      'assets/ayurveda_icon.png',  
-                      width: 80,  
-                      height: 80,  
+                      'assets/ayurveda_icon.png',
+                      width: 80,
+                      height: 80,
                     ),
                   ),
                 ),
@@ -97,7 +104,6 @@ class _LoginState extends State<Login> {
                       },
                     ),
                     const SizedBox(height: 20),
-
                     const Text(
                       'Password',
                       style: TextStyle(
@@ -126,15 +132,25 @@ class _LoginState extends State<Login> {
                     Container(
                       height: 60,
                       child: ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
                           if (_formKey.currentState!.validate()) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => PatientList()),
-                            );
+                            var res = await controller.login(
+                                username: _emailController.text,
+                                password: _passwordController.text);
+
+                            if (res["status"] == false) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(res["message"])),
+                              );
+
+                              return;
+                            }
+
+                            Get.toNamed("/patient-list");
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Please fill in all fields')),
+                              SnackBar(
+                                  content: Text('Please fill in all fields')),
                             );
                           }
                         },
@@ -162,7 +178,8 @@ class _LoginState extends State<Login> {
                 text: TextSpan(
                   children: [
                     const TextSpan(
-                      text: 'By creating or logging into an account you are agreeing with our ',
+                      text:
+                          'By creating or logging into an account you are agreeing with our ',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.black,
